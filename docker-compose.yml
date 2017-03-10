@@ -5,11 +5,9 @@ services:
   api:
     image: opendatagateway/api:latest
     ports:
-      - "8090:8090"
+      - "8080:8080"
   ir:
     image: opendatagateway/information_retrieval:latest
-    ports:
-      - "8080:8080"
     links:
       - elk
   elk:
