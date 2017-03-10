@@ -1,0 +1,8 @@
+# Note, you need to set sudo sysctl -w vm.max_map_count=262144
+version: '2'
+services:
+  elasticsearch:
+    image: elasticsearch
+    ports:
+    - "9200:9200"
+    - "9300:9300"
