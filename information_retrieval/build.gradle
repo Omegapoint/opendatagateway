@@ -4,7 +4,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.bmuschko:gradle-docker-plugin:3.0.4'
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.6'
     }
 }
 
@@ -21,10 +21,13 @@ jar {
     }
 }
 
+dependencies {
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.3'
+}
+
 mainClassName = 'com.omegapoint.opendatagateway.information_retrieval.Main'
 
 docker {
-    url = 'unix:///var/run/docker.sock'
     javaApplication {
         baseImage = 'java:openjdk-8-jre'
         maintainer = 'Omegapoint opendatagateway team'
