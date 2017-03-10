@@ -22,7 +22,7 @@ public class CsvToJsonConverter {
   public static List<Map<?, ?>> readObjectsFromCsv(String data) throws IOException {
     CsvSchema bootstrap = CsvSchema.emptySchema().withHeader();
     CsvMapper csvMapper = new CsvMapper();
-    MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader(Map.class).with(bootstrap).readValues(data);
+    MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader(Map.class).with(bootstrap).readValues(new StringReader(data));
 
     return mappingIterator.readAll();
   }
@@ -30,5 +30,6 @@ public class CsvToJsonConverter {
   public static void writeAsJson(List<Map<?, ?>> data, File file) throws IOException {
     ObjectMapper mapper = new ObjectMapper();
     mapper.writeValue(file, data);
+    mapper.
   }
 }
