@@ -44,7 +44,7 @@ public class XlsToCsv {
       //String ext = FilenameUtils.getExtension(inputFile.toString());
 
       //if (ext.equalsIgnoreCase("xlsx")) {
-      //  workbook = new XSSFWorkbook(fis);
+      //workbook = new XSSFWorkbook(fis);
       //} else if (ext.equalsIgnoreCase("xls")) {
       workbook = new HSSFWorkbook(stream);
       //}
@@ -78,7 +78,8 @@ public class XlsToCsv {
 
                 break;
               case Cell.CELL_TYPE_STRING:
-                data.append(cell.getStringCellValue() + ",");
+                String cellData = cell.getStringCellValue().replaceAll("\n","-");
+                data.append(cellData + ",");
                 break;
 
               case Cell.CELL_TYPE_BLANK:

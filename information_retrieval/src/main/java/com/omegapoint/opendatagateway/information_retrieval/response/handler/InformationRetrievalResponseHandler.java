@@ -1,8 +1,13 @@
 package com.omegapoint.opendatagateway.information_retrieval.response.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
+import com.omegapoint.opendatagateway.information_retrieval.Publisher;
 import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
+import java.io.InputStream;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.http.*;
@@ -41,11 +46,10 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
         return null;
     }
 
-    private InformationRetrievalResult handleResponseEntity(LocalDateTime dateTime, HttpEntity entity) throws IOException {
+    private InformationRetrievalResult handleResponseEntity(LocalDateTime dateTime, HttpEntity entity)
+        throws IOException {
         //BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), contentEncodingCharset(entity)));
-        String data = XlsToCsv.xlsx(entity.getContent());
-        List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
-        // TODO transform
+        insertData(convertData(entity.getContent()));
         return new InformationRetrievalResult(dateTime);
     }
 
@@ -57,4 +61,22 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 
         return Optional.ofNullable(encoding.getValue()).orElse(DEFAULT_ENCODING_CHARSET);
     }
+
+    private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
+      String data = XlsToCsv.xlsx(stream);
+      System.out.println("Data: " + data);
+      List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
+      return nodes;
+    }
+
+    private void insertData(List<Map<?, ?>> nodes) throws JsonProcessingException {
+      Iterator<Map<?, ?>> i = nodes.iterator();
+      while (i.hasNext()) {
+        ObjectMapper mapper = new ObjectMapper();
+        String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
+        System.out.println(pretty);
+        Publisher.publish("test", pretty);
+      }
+    }
+
 }
