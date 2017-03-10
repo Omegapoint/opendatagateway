@@ -1,38 +1,35 @@
 package com.omegapoint.opendatagateway.information_retrieval;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.List;
-import java.util.Map;
+import java.io.StringReader;
 
 public class Main {
 
-    public static void main(String[] args) {
-        Main main = new Main();
-        main.readData();
+  public static void main(String[] args) {
+    Main main = new Main();
+    main.readData();
+  }
+
+  private void readData() {
+    ClassLoader classLoader = getClass().getClassLoader();
+    try {
+      File input = new File(classLoader.getResource("test_input.xls").getFile());
+      String data = XlsToCsv.xlsx(input);
+      System.out.println(data);
+      ObjectMapper mapper = new ObjectMapper();
+      StringReader reader = new StringReader(data);
+      JsonNode node = CsvToJsonConverter.toJson(reader);
+      //node = CsvToJsonConverter.toJson(reader);
+      String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+      System.out.println(pretty);
+    } catch (IOException e) {
+      e.printStackTrace();
     }
-
-    private void readData(){
-        ClassLoader classLoader = getClass().getClassLoader();
-        try {
-            File input = new File(classLoader.getResource("test_input.xls").getFile());
-            InputStreamReader reader = new InputStreamReader(new FileInputStream(input), "UTF-8");
-            ObjectMapper mapper = new ObjectMapper();
-            String pretty = mapper.writerWithDefaultPrettyPrinter()
-                    .writeValueAsString(CsvToJsonConverter.toJson(reader));
-            System.out.println(pretty);
-            String data = XlsToCsv.xlsx(input);
-            List<Map<?, ?>> report =  CsvToJsonConverter.readObjectsFromCsv(data);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-
+  }
 
 
 }
