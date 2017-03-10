@@ -1,0 +1,28 @@
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.bmuschko:gradle-docker-plugin:3.0.4'
+    }
+}
+
+apply plugin: 'application'
+apply plugin: 'com.bmuschko.docker-java-application'
+
+jar {
+    baseName = 'opendatagateway.information_retrieval'
+    version = '0.0.1-SNAPSHOT'
+}
+
+mainClassName = 'com.omegapoint.opendatagateway.information_retrieval.Main'
+
+docker {
+    url = 'unix:///var/run/docker.sock'
+    javaApplication {
+        baseImage = 'java:openjdk-8-jre'
+        maintainer = 'Omegapoint opendatagateway team'
+        tag = 'opendatagateway/information_retrieval'
+    }
+}

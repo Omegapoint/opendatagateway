@@ -1,0 +1,3 @@
+rootProject.name = 'opendatagateway'
+
+include 'information_retrieval'
