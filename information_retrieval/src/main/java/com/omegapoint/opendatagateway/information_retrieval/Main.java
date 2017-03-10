@@ -9,6 +9,7 @@ import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FilenameUtils;
 
 public class Main {
 
@@ -25,7 +26,6 @@ public class Main {
 
     if (!test) {
       URI uri = new URI("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls");
-
       InformationRetrievalWorker worker = new InformationRetrievalWorker(uri);
       worker.call();
     } else {
@@ -49,4 +49,5 @@ public class Main {
       }
     }
   }
+
 }

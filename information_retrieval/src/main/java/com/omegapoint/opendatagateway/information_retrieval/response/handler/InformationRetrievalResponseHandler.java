@@ -24,8 +24,13 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 
     public static final String LAST_MODIFIED_HEADER = "Last-Modified";
     private static final String DEFAULT_ENCODING_CHARSET = "UTF-8";
+    private String name;
 
-    @Override
+  public InformationRetrievalResponseHandler(String name) {
+    this.name = name;
+  }
+
+  @Override
     public InformationRetrievalResult handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
         Header[] lastModifiedHeaders = response.getHeaders(LAST_MODIFIED_HEADER);
         LocalDateTime maxDateTime = LocalDateTime.MIN;
@@ -75,7 +80,7 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
         ObjectMapper mapper = new ObjectMapper();
         String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
         System.out.println(pretty);
-        Publisher.publish("test", pretty);
+        Publisher.publish(name, pretty);
       }
     }
 
