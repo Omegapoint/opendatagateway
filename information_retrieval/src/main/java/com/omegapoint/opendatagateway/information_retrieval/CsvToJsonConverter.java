@@ -20,12 +20,12 @@ public class CsvToJsonConverter {
     return mapper.readTree(reader);
   }
 
-  public static Map readObjectsFromCsv(Reader reader) throws IOException {
+  public static List<Map<?, ?>> readObjectsFromCsv(String data) throws IOException {
     CsvSchema bootstrap = CsvSchema.emptySchema().withHeader();
     CsvMapper csvMapper = new CsvMapper();
-    Map map = csvMapper.readValue(reader, Map.class);
+    MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader(Map.class).with(bootstrap).readValues(new StringReader(data));
 
-    return map;
+    return mappingIterator.readAll();
   }
 
   public static void writeAsJson(List<Map<?, ?>> data, File file) throws IOException {
