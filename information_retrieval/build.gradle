@@ -14,6 +14,11 @@ apply plugin: 'com.bmuschko.docker-java-application'
 jar {
     baseName = 'opendatagateway.information_retrieval'
     version = '0.0.1-SNAPSHOT'
+    manifest {
+        attributes(
+                "Main-Class": 'com.omegapoint.opendatagateway.information_retrieval.Main'
+        )
+    }
 }
 
 mainClassName = 'com.omegapoint.opendatagateway.information_retrieval.Main'

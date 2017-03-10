@@ -7,7 +7,7 @@ services:
     ports:
       - "8090:8090"
   ir:
-    image: opendatagateway/informationretrieval:latest
+    image: opendatagateway/information_retrieval:latest
     ports:
       - "8080:8080"
     links:
