@@ -1,4 +1,4 @@
-package com.omegapoint.opendatagateway.domain;
+package com.omegapoint.opendatagateway.modell;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
