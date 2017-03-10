@@ -12,17 +12,16 @@ buildscript {
     }
 }
 
-apply plugin: 'spring-boot'
+apply plugin: 'org.springframework.boot'
 apply plugin: 'application'
 apply plugin: 'com.bmuschko.docker-java-application'
 
 dependencies {
     compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-data-elasticsearch')
     testCompile('org.assertj:assertj-core:3.4.0')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
-
-//mainClassName = 'com.omegapoint.opendatagateway.api.ApiApplication'
 
 jar {
     baseName = 'opendatagateway.api'

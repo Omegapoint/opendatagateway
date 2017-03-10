@@ -1,14 +1,22 @@
 package com.omegapoint.opendatagateway;
 
+import com.omegapoint.opendatagateway.domain.Vatmark;
+import com.omegapoint.opendatagateway.repositories.VatmarkerRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import java.util.List;
+
 @Controller
 @EnableAutoConfiguration
 public class ApiController {
+
+	@Autowired
+	private VatmarkerRepository repository;
 
 	@RequestMapping("/vat/format")
 	@ResponseBody
@@ -18,8 +26,8 @@ public class ApiController {
 
 	@RequestMapping("/vat/search")
 	@ResponseBody
-	String search() {
-		return "Hello World!";
+	List<Vatmark> search(String kommun) {
+		return repository.findAllByKommun(kommun);
 	}
 
 	public static void main(String[] args) throws Exception {
