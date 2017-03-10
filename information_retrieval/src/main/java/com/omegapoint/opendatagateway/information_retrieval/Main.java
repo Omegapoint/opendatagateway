@@ -1,21 +1,22 @@
 package com.omegapoint.opendatagateway.information_retrieval;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.oracle.javafx.jmx.json.JSONReader;
 import org.apache.commons.io.FilenameUtils;
-
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 
 public class Main {
@@ -29,8 +30,10 @@ public class Main {
         ClassLoader classLoader = getClass().getClassLoader();
         try {
             File input = new File(classLoader.getResource("test_input.xls").getFile());
-            String data = xlsx(input);
-            List<Map<?, ?>> report =  CsvToJsonConverter.readObjectsFromCsv(data);
+            InputStreamReader reader = new InputStreamReader(new FileInputStream(input), "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(CsvToJsonConverter.toJson(reader));
+            System.out.println(pretty);
         } catch (IOException e) {
             e.printStackTrace();
         }

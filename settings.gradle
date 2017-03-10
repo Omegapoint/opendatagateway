@@ -1,3 +1,4 @@
 rootProject.name = 'opendatagateway'
 
 include 'information_retrieval'
+include 'api'
