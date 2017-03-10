@@ -27,6 +27,15 @@ dependencies {
 
 mainClassName = 'com.omegapoint.opendatagateway.information_retrieval.Main'
 
+dependencies{
+    compile 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.7.0'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.5.2'
+    compile 'com.fasterxml.jackson.core:jackson-annotations:2.1.2'
+    compile 'org.apache.poi:poi:3.9'
+    compile 'org.apache.poi:poi-ooxml:3.9'
+    compile 'org.apache.commons:commons-io:1.3.2'
+}
+
 docker {
     javaApplication {
         baseImage = 'java:openjdk-8-jre'

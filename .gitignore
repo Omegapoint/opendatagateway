@@ -1,4 +1,13 @@
 # Created by .ignore support plugin (hsz.mobi)
 .idea
 .gradle
+
+gradle*
+*/gradle/*
+gradle/**
+
 **/build
+*.iml
+
+/gradle/wrapper/gradle-wrapper.properties
+/gradle/wrapper/gradle-wrapper.jar
