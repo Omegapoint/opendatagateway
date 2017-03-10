@@ -8,7 +8,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +22,8 @@ public class CsvToJsonConverter {
   public static List<Map<?, ?>> readObjectsFromCsv(String data) throws IOException {
     CsvSchema bootstrap = CsvSchema.emptySchema().withHeader();
     CsvMapper csvMapper = new CsvMapper();
-    MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader(Map.class).with(bootstrap).readValues(new StringReader(data));
-
+    MappingIterator<Map<?, ?>> mappingIterator = csvMapper.reader(Map.class).with(bootstrap).readValues(data);
+    ObjectMapper mapper = new ObjectMapper();
     return mappingIterator.readAll();
   }
 

@@ -1,6 +1,10 @@
 package com.omegapoint.opendatagateway.information_retrieval.response.handler;
 
+import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
+import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
+import java.util.List;
+import java.util.Map;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -38,7 +42,9 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
     }
 
     private InformationRetrievalResult handleResponseEntity(LocalDateTime dateTime, HttpEntity entity) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), contentEncodingCharset(entity)));
+        //BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), contentEncodingCharset(entity)));
+        String data = XlsToCsv.xlsx(entity.getContent());
+        List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
         // TODO transform
         return new InformationRetrievalResult(dateTime);
     }
