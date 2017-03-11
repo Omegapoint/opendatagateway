@@ -3,11 +3,14 @@ package com.omegapoint.opendatagateway.information_retrieval;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 import java.util.Iterator;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -38,7 +41,6 @@ public class XlsToCsv {
     StringBuilder data = new StringBuilder();
 
     try {
-
       Workbook workbook = null;
 
       //String ext = FilenameUtils.getExtension(inputFile.toString());
@@ -46,7 +48,16 @@ public class XlsToCsv {
       //if (ext.equalsIgnoreCase("xlsx")) {
       //workbook = new XSSFWorkbook(fis);
       //} else if (ext.equalsIgnoreCase("xls")) {
-      workbook = new HSSFWorkbook(stream);
+      try {
+        workbook = new HSSFWorkbook(stream);
+      } catch (OfficeXmlFileException e) {
+        System.out.println("Message:" + e.getMessage());
+      }
+
+      if(workbook == null) {
+        System.out.println("Using XSSF instead of HSSF");
+        workbook = new XSSFWorkbook(stream);
+      }
       //}
 
       // Get first sheet from the workbook
@@ -78,7 +89,7 @@ public class XlsToCsv {
 
                 break;
               case Cell.CELL_TYPE_STRING:
-                String cellData = cell.getStringCellValue().replaceAll("\n","-");
+                String cellData = cell.getStringCellValue().replaceAll("\n", "-");
                 data.append(cellData + ",");
                 break;
 
@@ -94,9 +105,8 @@ public class XlsToCsv {
         }
 
       }
-
-    } catch (Exception ioe) {
-      ioe.printStackTrace();
+    } catch (IOException e1) {
+      e1.printStackTrace();
     }
 
     return data.toString();

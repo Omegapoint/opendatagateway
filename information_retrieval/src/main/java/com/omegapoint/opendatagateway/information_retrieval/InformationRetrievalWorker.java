@@ -14,18 +14,18 @@ import java.util.concurrent.Callable;
 
 public class InformationRetrievalWorker implements Callable<InformationRetrievalResult> {
 
-    private final URI serviceURI;
+    private final ApiData apiData;
     private final LocalDateTime latestUpdate;
 
-    public InformationRetrievalWorker(URI serviceURI, LocalDateTime latestUpdate) {
-        this.serviceURI = serviceURI;
+    public InformationRetrievalWorker(ApiData apiData, LocalDateTime latestUpdate) {
+        this.apiData = apiData;
         this.latestUpdate = latestUpdate;
     }
 
     @Override
     public InformationRetrievalResult call() throws Exception {
         HttpClient client = HttpClients.createDefault();
-        HttpGet request = new HttpGet(serviceURI);
-        return client.execute(request, new InformationRetrievalResponseHandler(serviceURI, latestUpdate));
+        HttpGet request = new HttpGet(apiData.getUri());
+        return client.execute(request, new InformationRetrievalResponseHandler(apiData, latestUpdate));
     }
 }
