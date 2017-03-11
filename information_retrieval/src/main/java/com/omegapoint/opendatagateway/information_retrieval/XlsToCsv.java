@@ -46,7 +46,7 @@ public class XlsToCsv {
       //if (ext.equalsIgnoreCase("xlsx")) {
       //workbook = new XSSFWorkbook(fis);
       //} else if (ext.equalsIgnoreCase("xls")) {
-      workbook = new HSSFWorkbook(stream);
+      workbook = new XSSFWorkbook(stream);
       //}
 
       // Get first sheet from the workbook

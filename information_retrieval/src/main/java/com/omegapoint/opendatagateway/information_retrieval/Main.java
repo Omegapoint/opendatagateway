@@ -23,14 +23,6 @@ public class Main {
 
     if (!test) {
         new InformationRetrievalScheduler();
-//      InformationRetrievalWorker worker = new InformationRetrievalWorker(uri);
-//      worker.call();
-
-
-//      uri = new URI("http://data.smhi.se/met/climate/time_series/html/rcp/swe/rcp85/data/t_ar_s_swe_rcp85.xls");
-//      worker = new InformationRetrievalWorker(uri);
-//      worker.call();
-
     } else {
       ClassLoader classLoader = getClass().getClassLoader();
       try {
