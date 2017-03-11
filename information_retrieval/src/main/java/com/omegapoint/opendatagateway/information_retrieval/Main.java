@@ -4,16 +4,29 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
-	public static void main(String[] args) {
+	private static final int MAX_THREADS = 10;
+
+	public static void main(String[] args) throws URISyntaxException {
+		InformationRetrievalScheduler scheduler = new InformationRetrievalScheduler();
+
 		Main main = new Main();
 		main.readData();
-	}
+        try {
+            Thread.sleep(20000);
+        } catch (InterruptedException e) {
+            // ignore
+        }
+
+        scheduler.shutdown();
+        System.exit(1);
+    }
 
 	private void readData() {
 		ClassLoader classLoader = getClass().getClassLoader();
