@@ -1,6 +1,9 @@
 package com.omegapoint.opendatagateway.information_retrieval;
 
 import com.omegapoint.opendatagateway.information_retrieval.response.handler.InformationRetrievalResponseHandler;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.HttpClients;
