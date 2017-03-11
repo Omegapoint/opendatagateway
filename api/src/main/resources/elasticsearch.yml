@@ -1,0 +1,13 @@
+#spring:
+#  data:
+#    elasticsearch:
+#      cluster-nodes: elasticsearch:9300
+#
+#elasticsearch:
+#  host: elasticsearch
+#  port: 9300
+
+cluster.name: docker-cluster
+node.name: localhost
+network.host: localhost
+network.bind_host: 9200

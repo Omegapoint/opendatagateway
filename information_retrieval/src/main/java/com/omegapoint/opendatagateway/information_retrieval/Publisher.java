@@ -2,10 +2,15 @@ package com.omegapoint.opendatagateway.information_retrieval;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.CredentialsProvider;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.BasicCredentialsProvider;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
@@ -16,10 +21,18 @@ import java.io.IOException;
  */
 public class Publisher {
 	public static void publish(String index, String json) {
-		HttpClient httpClient = HttpClients.createDefault();
+		CredentialsProvider provider = new BasicCredentialsProvider();
+		UsernamePasswordCredentials credentials
+				= new UsernamePasswordCredentials("elastic", "changeme");
+		provider.setCredentials(AuthScope.ANY, credentials);
+
+		HttpClient httpClient = HttpClientBuilder.create()
+				.setDefaultCredentialsProvider(provider)
+				.build();
 		HttpPost httpPost = new HttpPost("http://localhost:9200/opendatagateway/" + index);
 		StringEntity requestEntity = new StringEntity(json, ContentType.APPLICATION_JSON);
 		httpPost.setEntity(requestEntity);
+
 		try {
 
 			HttpResponse response = httpClient.execute(httpPost);
