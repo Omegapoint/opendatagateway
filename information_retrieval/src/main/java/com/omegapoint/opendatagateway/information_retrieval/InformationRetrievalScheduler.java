@@ -25,7 +25,7 @@ public class InformationRetrievalScheduler {
         // TODO this should probably be established using some online resource or configuration file
 
         List<URI> resourceURIs = new ArrayList<>();
-        resourceURIs.add(new URIBuilder("http://vattenweb.smhi.se/wetlands/rest/download/V%C3%A5tmarker2012.xls").build());
+        resourceURIs.add(new URIBuilder("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls").build());
         return Collections.unmodifiableList(resourceURIs);
     }
 

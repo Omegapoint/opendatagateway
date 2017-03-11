@@ -1,22 +1,30 @@
 package com.omegapoint.opendatagateway.information_retrieval.response.handler;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
+import com.omegapoint.opendatagateway.information_retrieval.Publisher;
+import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
 import org.apache.http.*;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public class InformationRetrievalResponseHandler implements ResponseHandler<InformationRetrievalResult> {
 
     public static final String LAST_MODIFIED_HEADER = "Last-Modified";
     private static final String DEFAULT_ENCODING_CHARSET = "UTF-8";
-
     private final URI uri;
     private final LocalDateTime latestUpdate;
 
@@ -54,20 +62,26 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
         return new InformationRetrievalResult(uri, latestUpdate);
     }
 
-    private InformationRetrievalResult handleResponseEntity(LocalDateTime latestUpdate, HttpEntity entity) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(entity.getContent(), contentEncodingCharset(entity)));
-        reader.close();
-
-        // TODO transform and publish
+    private InformationRetrievalResult handleResponseEntity(LocalDateTime latestUpdate, HttpEntity entity)
+        throws IOException {
+        insertData(convertData(entity.getContent()));
         return new InformationRetrievalResult(uri, latestUpdate);
     }
 
-    private String contentEncodingCharset(HttpEntity entity) {
-        Header encoding = entity.getContentEncoding();
-        if (encoding == null) {
-            return DEFAULT_ENCODING_CHARSET;
-        }
-
-        return Optional.ofNullable(encoding.getValue()).orElse(DEFAULT_ENCODING_CHARSET);
+    private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
+      String data = XlsToCsv.xlsx(stream);
+      System.out.println("Data: " + data);
+      List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
+      return nodes;
     }
+
+    private void insertData(List<Map<?, ?>> nodes) throws JsonProcessingException, UnsupportedEncodingException {
+        for (Map<?, ?> node : nodes) {
+            ObjectMapper mapper = new ObjectMapper();
+            String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
+            System.out.println(pretty);
+            Publisher.publish(URLEncoder.encode(uri.toString(), "UTF-8"), pretty);
+        }
+    }
+
 }

@@ -4,50 +4,53 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class Main {
 
-	private static final int MAX_THREADS = 10;
-
-	public static void main(String[] args) throws URISyntaxException {
-		InformationRetrievalScheduler scheduler = new InformationRetrievalScheduler();
-
-		Main main = new Main();
-		main.readData();
-        try {
-            Thread.sleep(20000);
-        } catch (InterruptedException e) {
-            // ignore
-        }
-
-        scheduler.shutdown();
-        System.exit(1);
+  public static void main(String[] args) {
+    Main main = new Main();
+    try {
+      main.readData(false);
+    } catch (Exception e) {
+      e.printStackTrace();
     }
+  }
 
-	private void readData() {
-		ClassLoader classLoader = getClass().getClassLoader();
-		try {
-			File input = new File(classLoader.getResource("test_input.xls").getFile());
-			String data = XlsToCsv.xlsx(input);
-			List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
-			//node = CsvToJsonConverter.toJson(reader);
-			System.out.println(nodes.size());
-			Iterator<Map<?, ?>> i = nodes.iterator();
-			while (i.hasNext()) {
-				ObjectMapper mapper = new ObjectMapper();
-				String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
-				System.out.println(pretty);
+  private void readData(boolean test) throws Exception {
 
-				Publisher.publish("test", pretty);
-			}
-		} catch (IOException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-		}
-	}
+    if (!test) {
+        new InformationRetrievalScheduler();
+//      InformationRetrievalWorker worker = new InformationRetrievalWorker(uri);
+//      worker.call();
+
+
+//      uri = new URI("http://data.smhi.se/met/climate/time_series/html/rcp/swe/rcp85/data/t_ar_s_swe_rcp85.xls");
+//      worker = new InformationRetrievalWorker(uri);
+//      worker.call();
+
+    } else {
+      ClassLoader classLoader = getClass().getClassLoader();
+      try {
+        File input = new File(classLoader.getResource("test_input.xls").getFile());
+        String data = XlsToCsv.xlsx(input);
+        List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
+        //node = CsvToJsonConverter.toJson(reader);
+        System.out.println(nodes.size());
+        Iterator<Map<?, ?>> i = nodes.iterator();
+        while (i.hasNext()) {
+          ObjectMapper mapper = new ObjectMapper();
+          String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
+          System.out.println(pretty);
+          Publisher.publish("test", pretty);
+        }
+      } catch (IOException e) {
+        System.out.println(e.getMessage());
+        e.printStackTrace();
+      }
+    }
+  }
 
 }

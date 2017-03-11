@@ -2,6 +2,9 @@ package com.omegapoint.opendatagateway.information_retrieval;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.io.Reader;
 import java.util.Iterator;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -16,22 +19,35 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class XlsToCsv {
 
-  static String xlsx(File inputFile) {
+  static public String xlsx(File inputFile) {
+    // For storing data into CSV files
+    String result = null;
+
+    try {
+      FileInputStream fis = new FileInputStream(inputFile);
+
+      result = xlsx(fis);
+    } catch (FileNotFoundException e) {
+      e.printStackTrace();
+    }
+    return result;
+  }
+
+  static public String xlsx(InputStream stream) {
     // For storing data into CSV files
     StringBuilder data = new StringBuilder();
 
     try {
-      // Get the workbook object for XLSX file
-      FileInputStream fis = new FileInputStream(inputFile);
+
       Workbook workbook = null;
 
-      String ext = FilenameUtils.getExtension(inputFile.toString());
+      //String ext = FilenameUtils.getExtension(inputFile.toString());
 
-      if (ext.equalsIgnoreCase("xlsx")) {
-        workbook = new XSSFWorkbook(fis);
-      } else if (ext.equalsIgnoreCase("xls")) {
-        workbook = new HSSFWorkbook(fis);
-      }
+      //if (ext.equalsIgnoreCase("xlsx")) {
+      //workbook = new XSSFWorkbook(fis);
+      //} else if (ext.equalsIgnoreCase("xls")) {
+      workbook = new HSSFWorkbook(stream);
+      //}
 
       // Get first sheet from the workbook
 
@@ -62,7 +78,8 @@ public class XlsToCsv {
 
                 break;
               case Cell.CELL_TYPE_STRING:
-                data.append(cell.getStringCellValue() + ",");
+                String cellData = cell.getStringCellValue().replaceAll("\n","-");
+                data.append(cellData + ",");
                 break;
 
               case Cell.CELL_TYPE_BLANK:
