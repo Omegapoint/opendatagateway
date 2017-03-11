@@ -2,6 +2,7 @@ package com.omegapoint.opendatagateway.information_retrieval.response.handler;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.omegapoint.opendatagateway.information_retrieval.ApiData;
 import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
 import com.omegapoint.opendatagateway.information_retrieval.Publisher;
@@ -27,33 +28,33 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 
 	public static final String LAST_MODIFIED_HEADER = "Last-Modified";
 	private static final String DEFAULT_ENCODING_CHARSET = "UTF-8";
-	private final URI uri;
+    private final ApiData apiData;
 	private final LocalDateTime latestUpdate;
 
-	public InformationRetrievalResponseHandler(URI uri, LocalDateTime latestUpdate) {
-		this.uri = uri;
+    public InformationRetrievalResponseHandler(ApiData apiData, LocalDateTime latestUpdate) {
+        this.apiData = apiData;
 		this.latestUpdate = latestUpdate;
 	}
 
-	@Override
-	public InformationRetrievalResult handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-		Header[] lastModifiedHeaders = response.getHeaders(LAST_MODIFIED_HEADER);
-		LocalDateTime maxDateTime = null;
-		if (lastModifiedHeaders != null) {
-			for (Header lastModifiedHeader : lastModifiedHeaders) {
-				String dateTimeString = lastModifiedHeader.getValue();
-				LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
-				if (maxDateTime == null || maxDateTime.compareTo(dateTime) < 0) {
-					maxDateTime = dateTime;
-				}
-			}
-			if (maxDateTime == null) {
-				maxDateTime = LocalDateTime.now();
-			}
-			if (!maxDateTime.isAfter(latestUpdate)) {
-				return new InformationRetrievalResult(uri, latestUpdate);
-			}
-		}
+    @Override
+    public InformationRetrievalResult handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
+        Header[] lastModifiedHeaders = response.getHeaders(LAST_MODIFIED_HEADER);
+        LocalDateTime maxDateTime = null;
+        if (lastModifiedHeaders != null) {
+            for (Header lastModifiedHeader : lastModifiedHeaders) {
+                String dateTimeString = lastModifiedHeader.getValue();
+                LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+                if (maxDateTime == null || maxDateTime.compareTo(dateTime) < 0) {
+                    maxDateTime = dateTime;
+                }
+            }
+            if (maxDateTime == null) {
+                maxDateTime = LocalDateTime.now();
+            }
+            if (!maxDateTime.isAfter(latestUpdate)) {
+                return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
+            }
+        }
 
 
 		StatusLine statusLine = response.getStatusLine();
@@ -61,13 +62,13 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 			return handleResponseEntity(maxDateTime, response.getEntity());
 		}
 
-		return new InformationRetrievalResult(uri, latestUpdate);
+        return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
 	}
 
 	private InformationRetrievalResult handleResponseEntity(LocalDateTime latestUpdate, HttpEntity entity)
 			throws IOException {
 		insertData(convertData(entity.getContent()));
-		return new InformationRetrievalResult(uri, latestUpdate);
+        return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
 	}
 
 	private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
@@ -78,12 +79,12 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 	}
 
 	private void insertData(List<Map<?, ?>> nodes) throws JsonProcessingException, UnsupportedEncodingException {
-		Publisher publisher = new Publisher(URLEncoder.encode(uri.toString(), "UTF-8"));
+		Publisher publisher = new Publisher(URLEncoder.encode(apiData.getName(), "UTF-8"));
 		for (Map<?, ?> node : nodes) {
 			ObjectMapper mapper = new ObjectMapper();
 			String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
 			System.out.println(pretty);
-			publisher.publishRow(pretty);
+                        publisher.publishRow(pretty);
 		}
 		publisher.endPublish();
 	}

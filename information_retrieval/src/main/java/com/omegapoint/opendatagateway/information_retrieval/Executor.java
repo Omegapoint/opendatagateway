@@ -15,12 +15,12 @@ public class Executor {
         this.executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(MAX_THREADS);
     }
 
-    public final Future<InformationRetrievalResult> submit(URI uri) {
-        return submit(uri, LocalDateTime.MIN);
+    public final Future<InformationRetrievalResult> submit(ApiData apiData) {
+        return submit(apiData, LocalDateTime.MIN);
     }
 
-    public final Future<InformationRetrievalResult> submit(URI uri, LocalDateTime latestUpdated) {
-        return executor.submit(new InformationRetrievalWorker(uri, latestUpdated));
+    public final Future<InformationRetrievalResult> submit(ApiData apiData, LocalDateTime latestUpdated) {
+        return executor.submit(new InformationRetrievalWorker(apiData, latestUpdated));
     }
 
     public void shutdown() {

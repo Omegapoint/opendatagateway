@@ -21,11 +21,13 @@ public class InformationRetrievalScheduler {
         timer.scheduleAtFixedRate(updaterTask, 0L, INTERVAL_MS);
     }
 
-    private static List<URI> readURIConfiguration() throws URISyntaxException {
+    private static List<ApiData> readURIConfiguration() throws URISyntaxException {
         // TODO this should probably be established using some online resource or configuration file
 
-        List<URI> resourceURIs = new ArrayList<>();
-        resourceURIs.add(new URIBuilder("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls").build());
+        List<ApiData> resourceURIs = new ArrayList<>();
+        //resourceAPIs.add(new URIBuilder("http://bibstat.kb.se/export?sample_year=2016").build());
+        //resourceAPIs.add(new URIBuilder("http://data.smhi.se/met/climate/time_series/html/rcp/swe/rcp85/data/t_ar_s_swe_rcp85.xls").build());
+        resourceURIs.add(new ApiData(new URIBuilder("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls").build(), "vatmarker", "xls"));
         return Collections.unmodifiableList(resourceURIs);
     }
 
@@ -39,19 +41,19 @@ public class InformationRetrievalScheduler {
         private static final Timer timer = new Timer();
 
         private final Map<URI, LocalDateTime> latestUpdated = new HashMap<>();
-        private final List<URI> resourceURIs;
+        private final List<ApiData> resourceAPIs;
         private final Executor executor = new Executor();
 
-        public ResourceUpdaterTask(List<URI> resourceURIs) {
-            this.resourceURIs = resourceURIs;
+        public ResourceUpdaterTask(List<ApiData> resourceURIs) {
+            this.resourceAPIs = resourceURIs;
         }
 
         @Override
         public void run() {
             List<Future<InformationRetrievalResult>> results = new ArrayList<>();
-            for (URI uri : resourceURIs) {
-                System.out.println("Fetching: " + uri);
-                results.add(executor.submit(uri));
+            for (ApiData apiData : resourceAPIs) {
+                System.out.println("Fetching: " + apiData.getUri());
+                results.add(executor.submit(apiData));
             }
             for (Future<InformationRetrievalResult> result : results) {
                 try {
