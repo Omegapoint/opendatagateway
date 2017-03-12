@@ -7,6 +7,7 @@ import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
 import com.omegapoint.opendatagateway.information_retrieval.Publisher;
 import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
+import java.io.PrintWriter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -72,9 +73,16 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 	}
 
 	private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
-		String data = XlsToCsv.xlsx(stream);
+		String data = XlsToCsv.xlsx(stream, apiData.getType());
+		System.out.println("Data: " + data);
+          try{
+            PrintWriter writer = new PrintWriter("/tmp/data.txt", "UTF-8");
+            writer.println(data);
+            writer.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
 		System.err.println("convertData: " + data.length());
-
 		List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
 		System.err.println("convertData: " + nodes.size());
 		return nodes;

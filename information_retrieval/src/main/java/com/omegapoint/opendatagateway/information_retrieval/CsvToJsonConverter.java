@@ -23,21 +23,14 @@ public class CsvToJsonConverter {
 	}
 
 	public static List<Map<?, ?>> readObjectsFromCsv(String data) throws IOException {
-		CsvSchema bootstrap = CsvSchema.emptySchema().withHeader().withColumnSeparator('|');
+		CsvSchema bootstrap = CsvSchema.emptySchema().withHeader();
 		CsvMapper csvMapper = new CsvMapper();
 		MappingIterator<Map<?, ?>> mappingIterator = csvMapper
 				.reader(Map.class)
 				.with(bootstrap)
 				.readValues(new StringReader(data));
-		System.err.println("readObjectsFromCsv adding maps to list");
-
-		List<Map<?, ?>> maps = new ArrayList<>();
-		while (mappingIterator.hasNext()) {
-			System.err.print(".");
-			Map<?, ?> map = mappingIterator.nextValue();
-			maps.add(map);
-		}
-
+		System.err.println("readObjectsFromCsv");
+		List<Map<?, ?>> maps = mappingIterator.readAll();
 		System.err.println("readObjectsFromCsv DONE!");
 		return maps;
 	}

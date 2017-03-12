@@ -29,7 +29,7 @@ public class Main {
 
 			try {
 				File input = new File(classLoader.getResource("test_input.xls").getFile());
-				String data = XlsToCsv.xlsx(input);
+				String data = XlsToCsv.xlsx(input,"xls");
 				List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
 
 				Iterator<Map<?, ?>> i = nodes.iterator();
