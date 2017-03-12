@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 public class InformationRetrievalScheduler {
 
-    private static final long INTERVAL_MS = 10 * 1000; // 30 seconds
+    private static final long INTERVAL_MS = 120 * 1000; // 30 seconds
 
     private Timer timer = new Timer(false);
     private final ResourceUpdaterTask updaterTask;

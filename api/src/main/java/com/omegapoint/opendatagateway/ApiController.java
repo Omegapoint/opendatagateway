@@ -89,7 +89,7 @@ public class ApiController {
 		Search search = new Search.Builder(searchSourceBuilder.toString())
 				// multiple index or types can be added.
 				.addIndex(searchInfo.getIndex())
-				.addType("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls")
+				.addType(searchInfo.getType())
 				.build();
 
 		SearchResult result = client.execute(search);

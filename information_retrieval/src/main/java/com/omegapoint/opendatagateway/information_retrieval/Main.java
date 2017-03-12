@@ -32,12 +32,11 @@ public class Main {
 				String data = XlsToCsv.xlsx(input);
 				List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
 
-				System.out.println(nodes.size());
 				Iterator<Map<?, ?>> i = nodes.iterator();
 				while (i.hasNext()) {
 					ObjectMapper mapper = new ObjectMapper();
 					String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
-					System.out.println(pretty);
+					//System.out.println(pretty);
 					publisher.publishRow(pretty);
 				}
 			} catch (IOException e) {
