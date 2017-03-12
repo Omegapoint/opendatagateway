@@ -29,15 +29,14 @@ public class Main {
 
 			try {
 				File input = new File(classLoader.getResource("test_input.xls").getFile());
-				String data = XlsToCsv.xlsx(input);
+				String data = XlsToCsv.xlsx(input,"xls");
 				List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
 
-				System.out.println(nodes.size());
 				Iterator<Map<?, ?>> i = nodes.iterator();
 				while (i.hasNext()) {
 					ObjectMapper mapper = new ObjectMapper();
 					String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(i.next());
-					System.out.println(pretty);
+					//System.out.println(pretty);
 					publisher.publishRow(pretty);
 				}
 			} catch (IOException e) {

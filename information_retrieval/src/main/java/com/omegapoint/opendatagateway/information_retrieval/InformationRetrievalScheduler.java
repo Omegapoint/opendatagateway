@@ -11,7 +11,7 @@ import java.util.concurrent.Future;
 
 public class InformationRetrievalScheduler {
 
-    private static final long INTERVAL_MS = 10 * 1000; // 30 seconds
+    private static final long INTERVAL_MS = 600 * 1000; // 10 min
 
     private Timer timer = new Timer(false);
     private final ResourceUpdaterTask updaterTask;
@@ -25,7 +25,7 @@ public class InformationRetrievalScheduler {
         // TODO this should probably be established using some online resource or configuration file
 
         List<ApiData> resourceURIs = new ArrayList<>();
-        //resourceAPIs.add(new URIBuilder("http://bibstat.kb.se/export?sample_year=2016").build());
+        //resourceURIs.add(new ApiData(new URIBuilder("http://bibstat.kb.se/export?sample_year=2016").build(), "bibstat", "xlsx"));
         //resourceAPIs.add(new URIBuilder("http://data.smhi.se/met/climate/time_series/html/rcp/swe/rcp85/data/t_ar_s_swe_rcp85.xls").build());
         resourceURIs.add(new ApiData(new URIBuilder("http://vattenweb.smhi.se/vatmarker/rest/download/V%C3%A5tmarker.xls").build(), "vatmarker", "xls"));
         return Collections.unmodifiableList(resourceURIs);

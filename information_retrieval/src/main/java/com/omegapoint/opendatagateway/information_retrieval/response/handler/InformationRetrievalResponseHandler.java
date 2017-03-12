@@ -7,6 +7,7 @@ import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
 import com.omegapoint.opendatagateway.information_retrieval.Publisher;
 import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
+import java.io.PrintWriter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -28,63 +29,72 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 
 	public static final String LAST_MODIFIED_HEADER = "Last-Modified";
 	private static final String DEFAULT_ENCODING_CHARSET = "UTF-8";
-    private final ApiData apiData;
+	private final ApiData apiData;
 	private final LocalDateTime latestUpdate;
 
-    public InformationRetrievalResponseHandler(ApiData apiData, LocalDateTime latestUpdate) {
-        this.apiData = apiData;
+	public InformationRetrievalResponseHandler(ApiData apiData, LocalDateTime latestUpdate) {
+		this.apiData = apiData;
 		this.latestUpdate = latestUpdate;
 	}
 
-    @Override
-    public InformationRetrievalResult handleResponse(HttpResponse response) throws ClientProtocolException, IOException {
-        Header[] lastModifiedHeaders = response.getHeaders(LAST_MODIFIED_HEADER);
-        LocalDateTime maxDateTime = null;
-        if (lastModifiedHeaders != null) {
-            for (Header lastModifiedHeader : lastModifiedHeaders) {
-                String dateTimeString = lastModifiedHeader.getValue();
-                LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
-                if (maxDateTime == null || maxDateTime.compareTo(dateTime) < 0) {
-                    maxDateTime = dateTime;
-                }
-            }
-            if (maxDateTime == null) {
-                maxDateTime = LocalDateTime.now();
-            }
-            if (!maxDateTime.isAfter(latestUpdate)) {
-                return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
-            }
-        }
-
+	@Override
+	public InformationRetrievalResult handleResponse(HttpResponse response) throws ClientProtocolException,
+			IOException {
+		Header[] lastModifiedHeaders = response.getHeaders(LAST_MODIFIED_HEADER);
+		LocalDateTime maxDateTime = null;
+		if (lastModifiedHeaders != null) {
+			for (Header lastModifiedHeader : lastModifiedHeaders) {
+				String dateTimeString = lastModifiedHeader.getValue();
+				LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+				if (maxDateTime == null || maxDateTime.compareTo(dateTime) < 0) {
+					maxDateTime = dateTime;
+				}
+			}
+			if (maxDateTime == null) {
+				maxDateTime = LocalDateTime.now();
+			}
+			if (!maxDateTime.isAfter(latestUpdate)) {
+				return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
+			}
+		}
 
 		StatusLine statusLine = response.getStatusLine();
 		if (statusLine.getStatusCode() == HttpStatus.SC_OK) {
 			return handleResponseEntity(maxDateTime, response.getEntity());
 		}
 
-        return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
+		return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
 	}
 
 	private InformationRetrievalResult handleResponseEntity(LocalDateTime latestUpdate, HttpEntity entity)
 			throws IOException {
+		System.err.println("handleResponseEntity" + entity.getContentLength());
 		insertData(convertData(entity.getContent()));
-        return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
+		return new InformationRetrievalResult(apiData.getUri(), latestUpdate);
 	}
 
 	private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
-		String data = XlsToCsv.xlsx(stream);
+		String data = XlsToCsv.xlsx(stream, apiData.getType());
 		System.out.println("Data: " + data);
+          try{
+            PrintWriter writer = new PrintWriter("/tmp/data.txt", "UTF-8");
+            writer.println(data);
+            writer.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
 		List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
+		System.err.println("convertData: " + nodes.size());
 		return nodes;
 	}
 
 	private void insertData(List<Map<?, ?>> nodes) throws JsonProcessingException, UnsupportedEncodingException {
 		Publisher publisher = new Publisher(URLEncoder.encode(apiData.getName(), "UTF-8"));
+		System.err.println("InsertData: " + nodes.size());
 		for (Map<?, ?> node : nodes) {
 			ObjectMapper mapper = new ObjectMapper();
 			String pretty = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(node);
-			System.out.println(pretty);
-                        publisher.publishRow(pretty);
+			publisher.publishRow(pretty);
 		}
 		publisher.endPublish();
 	}
