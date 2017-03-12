@@ -21,6 +21,7 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +45,7 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 		if (lastModifiedHeaders != null) {
 			for (Header lastModifiedHeader : lastModifiedHeaders) {
 				String dateTimeString = lastModifiedHeader.getValue();
-				LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+				LocalDateTime dateTime = LocalDateTime.parse(dateTimeString, DateTimeFormatter.RFC_1123_DATE_TIME);
 				if (maxDateTime == null || maxDateTime.compareTo(dateTime) < 0) {
 					maxDateTime = dateTime;
 				}

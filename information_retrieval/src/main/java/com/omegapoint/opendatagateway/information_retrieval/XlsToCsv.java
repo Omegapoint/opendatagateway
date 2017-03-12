@@ -1,10 +1,8 @@
 package com.omegapoint.opendatagateway.information_retrieval;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import java.io.File;
@@ -34,13 +32,7 @@ public class XlsToCsv {
 		StringBuilder data = new StringBuilder();
 
 		try {
-			Workbook workbook;
-
-			if (type.equalsIgnoreCase("xlsx")) {
-				workbook = new XSSFWorkbook(stream);
-			} else {
-				workbook = new HSSFWorkbook(stream);
-			}
+			Workbook workbook = WorkbookFactory.create(stream);
 
 			workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
 
@@ -53,8 +45,10 @@ public class XlsToCsv {
 					data.append(rowString).append('\n'); // appending new line after each row
 				}
 			}
-		} catch (IOException e1) {
-			e1.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}catch (InvalidFormatException e) {
+			e.printStackTrace();
 		}
 
 		return data.toString();
