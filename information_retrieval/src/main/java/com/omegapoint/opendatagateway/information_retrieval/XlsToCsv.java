@@ -1,7 +1,6 @@
 package com.omegapoint.opendatagateway.information_retrieval;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.poifs.filesystem.OfficeXmlFileException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -14,103 +13,44 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
-/**
- * Created by matper on 2017-03-10.
- */
 public class XlsToCsv {
 
-	static public String xlsx(File inputFile) {
+	static public String xlsx(File inputFile, String type) {
 		// For storing data into CSV files
 		String result = null;
 
 		try {
 			FileInputStream fis = new FileInputStream(inputFile);
 
-			result = xlsx(fis);
+			result = xlsx(fis, type);
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		return result;
 	}
 
-	static public String xlsx(InputStream stream) {
+	public static String xlsx(InputStream stream, String type) {
 		// For storing data into CSV files
 		StringBuilder data = new StringBuilder();
 
 		try {
-			Workbook workbook = null;
+			Workbook workbook;
 
-			//String ext = FilenameUtils.getExtension(inputFile.toString());
-
-			//if (ext.equalsIgnoreCase("xlsx")) {
-			//workbook = new XSSFWorkbook(fis);
-			//} else if (ext.equalsIgnoreCase("xls")) {
-			try {
-				workbook = new HSSFWorkbook(stream);
-			} catch (OfficeXmlFileException e) {
-				System.out.println("Message:" + e.getMessage());
-			}
-
-			if (workbook == null) {
-				System.out.println("Using XSSF instead of HSSF");
+			if (type.equalsIgnoreCase("xlsx")) {
 				workbook = new XSSFWorkbook(stream);
+			} else {
+				workbook = new HSSFWorkbook(stream);
 			}
-			//}
-
-			// Get first sheet from the workbook
 
 			workbook.setMissingCellPolicy(Row.CREATE_NULL_AS_BLANK);
-			int numberOfSheets = workbook.getNumberOfSheets();
+
 			// Iterate through each rows from first sheet
-
-			for (int i = 0; i < numberOfSheets; i++) {
-				Sheet sheet = workbook.getSheetAt(0);
-
-				for (int rn = sheet.getFirstRowNum(); rn <= sheet.getLastRowNum(); rn++) {
-					Row row = sheet.getRow(rn);
-					StringBuilder rowString = new StringBuilder();
-
-					if (row == null) {
-						// There is no data in this row, handle as needed
-						System.err.println("======== NULL ROW");
-					} else {
-						// Row "rn" has data
-						for (int cn = 0; cn < row.getLastCellNum(); cn++) {
-							Cell cell = row.getCell(cn);
-							if (cell == null) {
-
-								System.err.println("-------- NULL CELL");
-								rowString.append("-");
-							} else {
-								switch (cell.getCellType()) {
-									case Cell.CELL_TYPE_BOOLEAN:
-										rowString.append(cell.getBooleanCellValue());
-										break;
-									case Cell.CELL_TYPE_NUMERIC:
-										rowString.append(cell.getNumericCellValue());
-
-										break;
-									case Cell.CELL_TYPE_STRING:
-										String cellData = cell.getStringCellValue().replaceAll("\n", "-").trim();
-										rowString.append(cellData.length()<1?"-":cellData);
-										break;
-
-									case Cell.CELL_TYPE_BLANK:
-										rowString.append("+");
-										break;
-									default:
-										rowString.append(cell);
-								}
-							}
-							if (cn < row.getLastCellNum()-1) {
-								rowString.append("|");
-							}
-						}
-					}
-					if (rowString.length() > 0) {
-						System.err.println(rowString.toString());
-						data.append(rowString.toString()).append('\n'); // appending new line after each row
-					}
+			Sheet sheet = workbook.getSheetAt(0);
+			for (int rn = sheet.getFirstRowNum(); rn <= sheet.getLastRowNum(); rn++) {
+				Row row = sheet.getRow(rn);
+				String rowString = parseRow(row);
+				if (rowString.length() > 0) {
+					data.append(rowString).append('\n'); // appending new line after each row
 				}
 			}
 		} catch (IOException e1) {
@@ -118,5 +58,34 @@ public class XlsToCsv {
 		}
 
 		return data.toString();
+	}
+
+	private static String parseRow(Row row) {
+		StringBuilder rowString = new StringBuilder();
+		if (row != null) {
+			for (int cn = 0; cn < row.getLastCellNum(); cn++) {
+				Cell cell = row.getCell(cn);
+				rowString.append(parseCell(cell));
+				if (cn < row.getLastCellNum() - 1) {
+					rowString.append("|");
+				}
+			}
+		}
+		return rowString.toString();
+	}
+
+	private static String parseCell(Cell cell) {
+		switch (cell.getCellType()) {
+			case Cell.CELL_TYPE_BOOLEAN:
+				return Boolean.toString(cell.getBooleanCellValue());
+			case Cell.CELL_TYPE_NUMERIC:
+				return Double.toString(cell.getNumericCellValue());
+			case Cell.CELL_TYPE_STRING:
+				return cell.getStringCellValue().replaceAll("\n", "-").trim();
+			case Cell.CELL_TYPE_BLANK:
+				return "";
+			default:
+				return cell.toString();
+		}
 	}
 }

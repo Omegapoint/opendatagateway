@@ -7,7 +7,6 @@ import com.omegapoint.opendatagateway.information_retrieval.CsvToJsonConverter;
 import com.omegapoint.opendatagateway.information_retrieval.InformationRetrievalResult;
 import com.omegapoint.opendatagateway.information_retrieval.Publisher;
 import com.omegapoint.opendatagateway.information_retrieval.XlsToCsv;
-import java.io.PrintWriter;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,6 +17,7 @@ import org.apache.http.client.ResponseHandler;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.time.LocalDateTime;
@@ -74,18 +74,20 @@ public class InformationRetrievalResponseHandler implements ResponseHandler<Info
 
 	private List<Map<?, ?>> convertData(InputStream stream) throws IOException {
 		String data = XlsToCsv.xlsx(stream, apiData.getType());
-		System.out.println("Data: " + data);
-          try{
-            PrintWriter writer = new PrintWriter("/tmp/data.txt", "UTF-8");
-            writer.println(data);
-            writer.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-		System.err.println("convertData: " + data.length());
+		//dumpToFile(data);
 		List<Map<?, ?>> nodes = CsvToJsonConverter.readObjectsFromCsv(data);
-		System.err.println("convertData: " + nodes.size());
 		return nodes;
+	}
+
+	private void dumpToFile(String data) {
+		System.out.println("Data: " + data);
+		try {
+			PrintWriter writer = new PrintWriter("/tmp/data.txt", "UTF-8");
+			writer.println(data);
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	private void insertData(List<Map<?, ?>> nodes) throws JsonProcessingException, UnsupportedEncodingException {
